@@ -1,0 +1,387 @@
+{% extends 'dashboard/header_footer.html' %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="background-color: white;">
+    <div class="row">
+        <!-- Left Column - Profile Card & Security -->
+        <div class="col-md-4 grid-margin stretch-card">
+            <!-- Profile Card -->
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="profile-image-wrapper mb-4 position-relative">
+                        <div class="avatar-xxl">
+                            <img src="{% if user_data.profile_image %}{{ user_data.profile_image.url }}{% else %}{% static 'dashboard/images/faces/face1.jpg' %}{% endif %}"
+                                 class="rounded-circle img-thumbnail shadow-sm"
+                                 width="150"
+                                 height="150"
+                                 alt="Profile Image">
+                        </div>
+                        <div class="change-image-btn mt-3">
+                            <button class="btn btn-sm btn-primary btn-rounded" data-toggle="modal" data-target="#profileImageModal">
+                                <i class="mdi mdi-camera mr-1"></i> Change Photo
+                            </button>
+                        </div>
+                    </div>
+                    <h3 class="mb-2">{{ user_data.first_name }} {{ user_data.last_name }}</h3>
+                    <p class="text-muted mb-3">{{ user_data.email }}</p>
+                    <div class="badge badge-outline-primary p-2">
+                        <i class="mdi mdi-account-circle mr-1"></i>
+                        {{ user_data.role|default:"Member" }}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-center">
+                        <div class="text-center px-3">
+                            <h5 class="mb-0">{{ user_data.followers_count|default:"0" }}</h5>
+                            <small class="text-muted">Followers</small>
+                        </div>
+                        <div class="text-center px-3">
+                            <h5 class="mb-0">{{ user_data.following_count|default:"0" }}</h5>
+                            <small class="text-muted">Following</small>
+                        </div>
+                        <div class="text-center px-3">
+                            <h5 class="mb-0">{{ user_data.posts_count|default:"0" }}</h5>
+                            <small class="text-muted">Posts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Card -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">
+                        <i class="mdi mdi-shield-account mr-2"></i>Account Security
+                    </h4>
+
+                    <div class="security-item d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <div>
+                            <i class="mdi mdi-key mr-2"></i>
+                            <span>Password</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#changePasswordModal">
+                            Change
+                        </button>
+                    </div>
+
+                    <div class="security-item d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <div>
+                            <i class="mdi mdi-two-factor-authentication mr-2"></i>
+                            <span>Two-Factor Auth</span>
+                        </div>
+                        <label class="toggle-switch toggle-switch-success">
+                            <input type="checkbox" {% if user_data.two_factor_enabled %}checked{% endif %}>
+                            <span class="toggle-slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="security-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="mdi mdi-email-alert mr-2"></i>
+                            <span>Login Alerts</span>
+                        </div>
+                        <label class="toggle-switch toggle-switch-success">
+                            <input type="checkbox" {% if user_data.login_alerts %}checked{% endif %}>
+                            <span class="toggle-slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Profile Details -->
+        <div class="col-md-8 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">
+                            <i class="mdi mdi-account-details mr-2"></i>Profile Details
+                        </h4>
+                        <a href="{% url 'update_register' %}" class="btn btn-sm btn-primary">
+                            <i class="mdi mdi-pencil mr-1"></i> Edit Profile
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th width="25%" class="text-nowrap"><i class="mdi mdi-account mr-2"></i>Username</th>
+                                    <td>{{ user_data.username }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-card-account-details mr-2"></i>Full Name</th>
+                                    <td>{{ user_data.first_name }} {{ user_data.last_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-email mr-2"></i>Email</th>
+                                    <td>{{ user_data.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-phone mr-2"></i>Phone</th>
+                                    <td>{{ user_data.phone|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-gender-male-female mr-2"></i>Gender</th>
+                                    <td>{{ user_data.gender|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-cake-variant mr-2"></i>Date of Birth</th>
+                                    <td>{{ user_data.dob|date:"F d, Y"|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-map-marker mr-2"></i>Address</th>
+                                    <td>{{ user_data.address|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-city mr-2"></i>City</th>
+                                    <td>{{ user_data.city|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-home-city mr-2"></i>State</th>
+                                    <td>{{ user_data.state|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-earth mr-2"></i>Country</th>
+                                    <td>{{ user_data.country|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-calendar-star mr-2"></i>Member Since</th>
+                                    <td>{{ user_data.date_joined|date:"F d, Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th><i class="mdi mdi-clock-outline mr-2"></i>Last Login</th>
+                                    <td>{{ user_data.last_login|date:"F d, Y H:i"|default:"Never" }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Image Modal -->
+<div class="modal fade" id="profileImageModal" tabindex="-1" role="dialog" aria-labelledby="profileImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileImageModalLabel">
+                    <i class="mdi mdi-camera mr-2"></i>Change Profile Image
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" enctype="multipart/form-data" id="profileImageForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group text-center">
+                        <div class="image-preview mb-3">
+                            <img id="imagePreview" src="{% if user_data.profile_image %}{{ user_data.profile_image.url }}{% else %}{% static 'dashboard/images/faces/face1.jpg' %}{% endif %}"
+                                 class="img-fluid rounded-circle shadow"
+                                 style="max-width: 200px; max-height: 200px;">
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="profileImageInput" name="profile_image" accept="image/*" required>
+                            <label class="custom-file-label" for="profileImageInput">Choose image</label>
+                        </div>
+                        <small class="form-text text-muted">Max file size: 2MB. Supported formats: JPG, PNG.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="mdi mdi-upload mr-1"></i> Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">
+                    <i class="mdi mdi-key-change mr-2"></i>Change Password
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" id="changePasswordForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label><i class="mdi mdi-key mr-2"></i>Current Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="current_password" id="currentPassword" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="mdi mdi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="mdi mdi-key-plus mr-2"></i>New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="new_password" id="newPassword" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="mdi mdi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">Minimum 8 characters with at least one number and one letter</small>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label><i class="mdi mdi-key-remove mr-2"></i>Confirm New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="confirm_password" id="confirmPassword" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="mdi mdi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="passwordMatch" class="invalid-feedback">Passwords do not match</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="mdi mdi-content-save mr-1"></i> Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-image-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+    .change-image-btn {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .profile-image-wrapper:hover .change-image-btn {
+        opacity: 1;
+    }
+    .avatar-xxl {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+    }
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .toggle-slider {
+        background-color: #4CAF50;
+    }
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+    .security-item {
+        padding: 8px 0;
+    }
+    .table th {
+        font-weight: 500;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+</style>
+
+<script>
+    // Profile image preview
+    document.getElementById('profileImageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('imagePreview').src = event.target.result;
+                document.querySelector('.custom-file-label').textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.closest('.input-group').querySelector('input');
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('mdi-eye');
+            this.querySelector('i').classList.toggle('mdi-eye-off');
+        });
+    });
+
+    // Password match validation
+    document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const passwordMatch = document.getElementById('passwordMatch');
+
+        if (newPassword !== confirmPassword) {
+            e.preventDefault();
+            passwordMatch.style.display = 'block';
+            document.getElementById('confirmPassword').classList.add('is-invalid');
+        }
+    });
+
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+        const newPassword = document.getElementById('newPassword').value;
+        if (this.value === newPassword) {
+            this.classList.remove('is-invalid');
+            document.getElementById('passwordMatch').style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

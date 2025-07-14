@@ -1,0 +1,135 @@
+{% extends 'dashboard/header_footer.html' %}
+{% block title %}Apply for {{ job.title }}{% endblock %}
+{% load static %}
+{% block content %}
+
+<style>
+    .application-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .application-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 30px;
+        text-align: center;
+    }
+
+    .application-header h2 {
+        color: #2c3e50;
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    .application-header .job-location {
+        color: #7f8c8d;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .application-form {
+        margin-top: 20px;
+        text-align: left;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #4a5568;
+    }
+
+    .file-input-container {
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    .file-input-btn {
+        display: block;
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .file-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-name {
+        color: #7f8c8d;
+        font-size: 14px;
+        display: block;
+        margin-top: 5px;
+    }
+
+    .submit-btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .required-star {
+        color: #e74c3c;
+    }
+</style>
+
+<div class="application-container">
+    <div class="application-card">
+        <div class="application-header">
+            <h2>Apply for: {{ job.title }}</h2>
+            <div class="job-location">{{ job.location }}</div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="application-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="resume">Resume <span class="required-star">*</span></label>
+                <div class="file-input-container">
+                    <div class="file-input-btn">Choose file</div>
+                    <input type="file" name="resume" id="resume" class="file-input" required>
+                </div>
+                <span class="file-name" id="file-name">No file chosen</span>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Application</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Show selected file name
+    document.getElementById('resume').addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+        document.getElementById('file-name').textContent = fileName;
+    });
+</script>
+
+{% endblock %}
