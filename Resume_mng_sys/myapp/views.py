@@ -119,9 +119,32 @@ def logout_view(request):
 
 
 #  Home View
-# @login_required
 def home_view(request):
-    return render(request, 'myapp/home.html', {'user': request.user})
+    total_candidates = CustomUser.objects.filter(role='candidate').count()
+    total_jobs = Job.objects.count()
+    total_filled_jobs = Application.objects.filter(status='Approved').count()
+    total_companies = CustomUser.objects.filter(role='recruiter').count()
+
+    job_titles = Job.objects.values_list('title', flat=True).distinct()
+    locations = Job.objects.values_list('location', flat=True).distinct()
+    job_types = Job.objects.values_list('job_type', flat=True).distinct()
+
+    context = {
+        'total_candidates': total_candidates,
+        'total_jobs': total_jobs,
+        'total_filled_jobs': total_filled_jobs,
+        'total_companies': total_companies,
+        'job_titles': job_titles,
+        'locations': locations,
+        'job_types': job_types,
+    }
+
+    return render(request, 'myapp/home.html', context)
+
+
+
+
+
 
 @login_required
 def job_list(request):
@@ -194,10 +217,10 @@ def update_status(request, application_id, status):
     application = get_object_or_404(Application, id=application_id)
     user = application.user  # this is a CustomUser instance
 
-    # ✅ Now call the email function with required values
+    # Now call the email function with required values
     send_status_email(user.email, user.username, status)
 
-    # ✅ Update the status
+    #  Update the status
     application.status = status
     application.save()
 
@@ -298,8 +321,19 @@ def Index(request):
     return render(request, 'myapp/index.html')
 
 
-def About(request):
-    return render(request, 'myapp/about.html')
+def about_view(request):
+    total_candidates = CustomUser.objects.filter(role='candidate').count()
+    total_jobs = Job.objects.count()
+    total_filled_jobs = Application.objects.filter(status='Approved').count()
+    total_companies = CustomUser.objects.filter(role='recruiter').count()
+
+    context = {
+        'total_candidates': total_candidates,
+        'total_jobs': total_jobs,
+        'total_filled_jobs': total_filled_jobs,
+        'total_companies': total_companies,
+    }
+    return render(request, 'myapp/about.html', context)
 
 
 def Contact(request):
@@ -433,3 +467,6 @@ def resend_otp(request):
     )
     messages.info(request, "A new OTP has been sent to your email.")
     return redirect('verify_password_otp')
+
+
+

@@ -15,7 +15,7 @@ urlpatterns = [
     # Job listings
     path('jobs/', job_list, name='job_list'),
     path('jobs/<int:job_id>/apply/', apply_job, name='apply_job'),
-    path('about/', About, name='about'),
+    path('about/', about_view, name='about'),
 
     # Admin section
     path('admin-dashboard', admin_dashboard, name='admin_dashboard'),
