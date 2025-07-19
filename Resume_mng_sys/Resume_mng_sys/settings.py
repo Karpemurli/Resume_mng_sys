@@ -12,7 +12,8 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = 'django-insecure-cqdpq1$dvw#)c=yzrxz2y39q1c)pynsr_$62x70&1v%3b5pkby'
 
 DEBUG = os.getenv('DEBUG', 'True') == 'False'
-ALLOWED_HOSTS = ['swapnilkarpe.pythonanywhere.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'karpemurli.pythonanywhere.com']
+
 
 #
 # DEBUG = True

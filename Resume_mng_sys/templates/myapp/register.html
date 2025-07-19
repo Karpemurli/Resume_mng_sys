@@ -23,7 +23,7 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-6 mb-5 mb-lg-0">
-        <form method="post" class="p-4 bg-white rounded" novalidate>
+        <form method="post" class="p-4 bg-white rounded" novalidate id="registrationForm">
           {% csrf_token %}
 
           {% if form.non_field_errors %}
@@ -43,7 +43,8 @@
               <input type="text" id="id_first_name" name="first_name"
                      class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
                      value="{% if form.first_name.value %}{{ form.first_name.value }}{% endif %}"
-                     required>
+                     required
+                     data-error-required="Please enter your first name">
               {% for error in form.first_name.errors %}
                 <div class="invalid-feedback">{{ error }}</div>
               {% endfor %}
@@ -53,16 +54,36 @@
               <input type="text" id="id_last_name" name="last_name"
                      class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
                      value="{% if form.last_name.value %}{{ form.last_name.value }}{% endif %}"
-                     required>
+                     required
+                     data-error-required="Please enter your last name">
               {% for error in form.last_name.errors %}
                 <div class="invalid-feedback">{{ error }}</div>
               {% endfor %}
             </div>
           </div>
 
+          <!-- Phone Number Field -->
+          <div class="row form-group">
+            <div class="col-md-12">
+              <label class="text-black" for="id_phone">Phone Number</label>
+              <input type="tel" id="id_phone" name="phone"
+                     class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
+                     value="{% if form.phone.value %}{{ form.phone.value }}{% endif %}"
+                     pattern="\d{10}"
+                     maxlength="10"
+                     required
+                     data-error-required="Phone number is required"
+                     data-error-pattern="Please enter a valid 10-digit phone number">
+              {% for error in form.phone.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              <small class="form-text text-muted">Enter 10-digit phone number without any spaces or special characters</small>
+            </div>
+          </div>
+
           <!-- Dynamic Form Fields -->
           {% for field in form %}
-            {% if field.name not in 'first_name,last_name' %}
+            {% if field.name not in 'first_name,last_name,phone' %}
               <div class="row form-group">
                 <div class="col-md-12">
                   <label class="text-black" for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -106,11 +127,16 @@
             </div>
           </div>
 
-          <!-- Submit Button -->
+          <!-- Submit and Reset Buttons -->
           <div class="row form-group">
-            <div class="col-md-12">
+            <div class="col-md-6 mb-2">
               <button type="submit" class="btn btn-primary btn-md text-white w-100">
                 Register Now
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button type="reset" class="btn btn-secondary btn-md w-100">
+                Reset Form
               </button>
             </div>
           </div>
@@ -215,52 +241,19 @@
     color: #333;
     border-left: none;
   }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+  }
 </style>
 
-<script>
-  // Enhanced client-side validation
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
 
-    // Add validation on blur
-    form.querySelectorAll('input, select').forEach(input => {
-      input.addEventListener('blur', function() {
-        this.classList.add('touched');
-        validateField(this);
-      });
-    });
-
-    // Form submission handler
-    form.addEventListener('submit', function(event) {
-      let isValid = true;
-
-      // Validate all fields
-      form.querySelectorAll('input, select').forEach(input => {
-        input.classList.add('touched');
-        if (!validateField(input)) {
-          isValid = false;
-        }
-      });
-
-      if (!isValid) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
-      form.classList.add('was-validated');
-    });
-
-    // Field validation function
-    function validateField(field) {
-      if (!field.checkValidity()) {
-        field.classList.add('is-invalid');
-        return false;
-      } else {
-        field.classList.remove('is-invalid');
-        return true;
-      }
-    }
-  });
-</script>
+<script src="{% static 'js/register.js' %}"></script>
 
 {% endblock %}
