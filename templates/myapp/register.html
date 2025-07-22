@@ -1,0 +1,259 @@
+{% extends 'myapp/index.html' %}
+{% load static %}
+
+{% block title %}ByteCode - Register{% endblock %}
+
+{% block content %}
+
+<section class="section-hero overlay inner-page bg-image" style="background-image: url('{% static 'images/hero_1.jpg' %}');" id="home-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-7">
+        <h1 class="text-white font-weight-bold">Create Your Account</h1>
+        <div class="custom-breadcrumbs">
+          <a href="{% url 'home' %}">Home</a> <span class="mx-2 slash">/</span>
+          <span class="text-white"><strong>Register</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="site-section" id="next-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <form method="post" class="p-4 bg-white rounded" novalidate id="registrationForm">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+              {% for error in form.non_field_errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <h2 class="h4 text-black mb-4">Join Our Community</h2>
+
+          <!-- Name Fields -->
+          <div class="row form-group">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label class="text-black" for="id_first_name">First Name</label>
+              <input type="text" id="id_first_name" name="first_name"
+                     class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                     value="{% if form.first_name.value %}{{ form.first_name.value }}{% endif %}"
+                     required
+                     data-error-required="Please enter your first name">
+              {% for error in form.first_name.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="text-black" for="id_last_name">Last Name</label>
+              <input type="text" id="id_last_name" name="last_name"
+                     class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                     value="{% if form.last_name.value %}{{ form.last_name.value }}{% endif %}"
+                     required
+                     data-error-required="Please enter your last name">
+              {% for error in form.last_name.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Phone Number Field -->
+          <div class="row form-group">
+            <div class="col-md-12">
+              <label class="text-black" for="id_phone">Phone Number</label>
+              <input type="tel" id="id_phone" name="phone"
+                     class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
+                     value="{% if form.phone.value %}{{ form.phone.value }}{% endif %}"
+                     pattern="\d{10}"
+                     maxlength="10"
+                     required
+                     data-error-required="Phone number is required"
+                     data-error-pattern="Please enter a valid 10-digit phone number">
+              {% for error in form.phone.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+              {% endfor %}
+              <small class="form-text text-muted">Enter 10-digit phone number without any spaces or special characters</small>
+            </div>
+          </div>
+
+          <!-- Dynamic Form Fields -->
+          {% for field in form %}
+            {% if field.name not in 'first_name,last_name,phone' %}
+              <div class="row form-group">
+                <div class="col-md-12">
+                  <label class="text-black" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {% if field.field.widget.input_type == 'select' %}
+                    <select class="form-control {% if field.errors %}is-invalid{% endif %}"
+                            id="{{ field.id_for_label }}" name="{{ field.name }}"
+                            {% if field.field.required %}required{% endif %}>
+                      {% for choice in field.field.choices %}
+                        <option value="{{ choice.0 }}" {% if field.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                      {% endfor %}
+                    </select>
+                  {% else %}
+                    <input type="{{ field.field.widget.input_type }}"
+                           class="form-control {% if field.errors %}is-invalid{% endif %}"
+                           id="{{ field.id_for_label }}" name="{{ field.name }}"
+                           value="{% if field.value %}{{ field.value }}{% endif %}"
+                           {% if field.field.required %}required{% endif %}>
+                  {% endif %}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% for error in field.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          <!-- Terms Checkbox -->
+          <div class="row form-group">
+            <div class="col-md-12">
+              <div class="form-check">
+                <input class="form-check-input {% if form.errors and not form.terms.value %}is-invalid{% endif %}"
+                       type="checkbox" id="termsCheck" name="terms" required>
+                <label class="form-check-label text-black" for="termsCheck">
+                  I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                </label>
+                <div class="invalid-feedback">You must agree to the terms before registering.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit and Reset Buttons -->
+          <div class="row form-group">
+            <div class="col-md-6 mb-2">
+              <button type="submit" class="btn btn-primary btn-md text-white w-100">
+                Register Now
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button type="reset" class="btn btn-secondary btn-md w-100">
+                Reset Form
+              </button>
+            </div>
+          </div>
+
+          <!-- Login Link -->
+          <div class="row form-group">
+            <div class="col-md-12 text-center">
+              <p class="text-black">Already have an account? <a href="{% url 'login' %}" class="text-primary">Login here</a></p>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-lg-5 ml-auto">
+        <div class="p-4 mb-3 bg-white rounded">
+          <h3 class="h4 text-black mb-3">Why Join Us?</h3>
+          <p class="mb-4">Join thousands of professionals who found their dream jobs through our platform. Get access to exclusive opportunities and career resources.</p>
+
+          <ul class="list-unstyled mb-5">
+            <li class="d-flex mb-2"><span class="mr-3 text-primary">✓</span> Personalized job recommendations</li>
+            <li class="d-flex mb-2"><span class="mr-3 text-primary">✓</span> Career development resources</li>
+            <li class="d-flex mb-2"><span class="mr-3 text-primary">✓</span> Direct contact with employers</li>
+            <li class="d-flex mb-2"><span class="mr-3 text-primary">✓</span> Free resume review service</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="site-section bg-light">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-12 text-center">
+        <h2 class="section-title mb-3">What Our Members Say</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="block__87154 bg-white rounded">
+          <blockquote>
+            <p>&ldquo;I found my dream job within two weeks of signing up. The platform made it so easy to connect with top employers in my field.&rdquo;</p>
+          </blockquote>
+          <div class="block__91147 d-flex align-items-center">
+            <figure class="mr-4"><img src="{% static 'images/person_1.jpg' %}" alt="Image" class="img-fluid rounded-circle"></figure>
+            <div>
+              <h3>Elisabeth Smith</h3>
+              <span class="position">Senior Developer at TechCorp</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="block__87154 bg-white rounded">
+          <blockquote>
+            <p>&ldquo;The career resources helped me improve my interview skills and negotiate a better salary package. Highly recommended!&rdquo;</p>
+          </blockquote>
+          <div class="block__91147 d-flex align-items-center">
+            <figure class="mr-4"><img src="{% static 'images/person_2.jpg' %}" alt="Image" class="img-fluid rounded-circle"></figure>
+            <div>
+              <h3>Chris Peter</h3>
+              <span class="position">Marketing Manager at BrandWorks</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875em;
+  }
+
+  .is-invalid ~ .invalid-feedback,
+  .was-validated .form-control:invalid ~ .invalid-feedback,
+  .was-validated .form-check-input:invalid ~ .invalid-feedback {
+    display: block;
+  }
+
+  .form-control.is-invalid,
+  .was-validated .form-control:invalid,
+  .form-check-input.is-invalid {
+    border-color: #dc3545;
+  }
+
+  .block__87154 {
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  }
+
+  .block__87154 blockquote {
+    padding: 0;
+    margin: 0 0 30px 0;
+    font-size: 1.2rem;
+    color: #333;
+    border-left: none;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+  }
+</style>
+
+
+<script src="{% static 'js/register.js' %}"></script>
+
+{% endblock %}

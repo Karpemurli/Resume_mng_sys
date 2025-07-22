@@ -1,0 +1,182 @@
+{% extends 'dashboard/header_footer.html' %}
+{% block title %}Add Job{% endblock %}
+{% block content %}
+
+<style>
+    /* Form styling */
+    .job-form-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: none;
+    }
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.8rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f1f1f1;
+    }
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+    .form-control {
+        border-radius: 6px;
+        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+    }
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 15px;
+    }
+    label {
+        font-weight: 500;
+        color: #4a5568;
+        margin-bottom: 0.6rem;
+        display: block;
+    }
+    .required-field:after {
+        content: " *";
+        color: #e74c3c;
+    }
+
+    /* Button styling */
+    .btn-submit {
+        background-color: #3498db;
+        border: none;
+        padding: 10px 28px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+    }
+    .btn-submit:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(41, 128, 185, 0.2);
+    }
+    .btn-cancel {
+        padding: 10px 28px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+        color: #4a5568;
+    }
+    .btn-cancel:hover {
+        background-color: #f8f9fa;
+        border-color: #d6d6d6;
+        color: #2c3e50;
+    }
+    .btn-group {
+        margin-top: 2rem;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 grid-margin stretch-card">
+            <div class="card job-form-card">
+                <div class="card-body">
+                    <h4 class="card-title">Add New Job</h4>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" class="forms-sample">
+                        {% csrf_token %}
+
+                        <!-- Job Title -->
+                        <div class="form-group">
+                            <label for="id_title" class="required-field">Job Title</label>
+                            <input type="text" class="form-control" id="id_title"
+                                   name="title" placeholder="e.g. Senior Web Developer" required>
+                        </div>
+
+                        <!-- Job Description -->
+                        <div class="form-group">
+                            <label for="id_description" class="required-field">Job Description</label>
+                            <textarea class="form-control" id="id_description"
+                                      name="description" rows="5"
+                                      placeholder="Enter detailed job description including responsibilities, requirements, and benefits..."
+                                      required></textarea>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="form-group">
+                            <label for="id_location" class="required-field">Location</label>
+                            <input type="text" class="form-control" id="id_location"
+                                   name="location" placeholder="e.g. Mumbai, Remote, Hybrid" required>
+                        </div>
+
+                        <!-- Job Type -->
+                        <div class="form-group">
+                            <label for="id_job_type" class="required-field">Job Type</label>
+                            <select class="form-control" id="id_job_type" name="job_type" required>
+                                <option value="">Select Job Type</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Internship">Internship</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Freelance">Freelance</option>
+                            </select>
+                        </div>
+
+                        <!-- Salary Range -->
+                        <div class="form-group">
+                            <label for="id_salary_range" class="required-field">Salary Range</label>
+                            <input type="text" class="form-control" id="id_salary_range"
+                                   name="salary_range" placeholder="e.g. ₹3 LPA - ₹5 LPA or Negotiable" required>
+                        </div>
+
+                        <!-- Application Deadline -->
+                        <div class="form-group">
+                            <label for="id_deadline">Application Deadline (Optional)</label>
+                            <input type="date" class="form-control" id="id_deadline"
+                                   name="deadline">
+                        </div>
+
+                        <!-- Publish Status -->
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="id_is_published" name="is_published" checked>
+                                <label class="form-check-label" for="id_is_published">Publish this job immediately</label>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-submit mr-3">
+                                <i class="mdi mdi-content-save"></i> Submit Job
+                            </button>
+                            <button type="reset" class="btn btn-cancel">
+                                <i class="mdi mdi-close"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

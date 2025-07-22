@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}MySite{% endblock %}</title>
+
+    <!-- CSS -->
+
+
+    <link rel="stylesheet" href="{% static 'dashboard/vendors/mdi/css/materialdesignicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/vendors/base/vendor.bundle.base.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="shortcut icon" href="{% static 'dashboard/images/favicon.png' %}"/>
+</head>
+
+<body>
+<div class="container-scroller">
+    <!-- Navbar -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="navbar-brand-wrapper d-flex justify-content-center">
+            <div class="navbar-brand-inner-wrapper d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand brand-logo" href="#">
+                    <img src="{% static 'dashboard/images/logo.svg' %}" alt="logo"/>
+                </a>
+                <a class="navbar-brand brand-logo-mini" href="#">
+                    <img src="{% static 'dashboard/images/logo-mini.svg' %}" alt="logo"/>
+                </a>
+                <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+                    <span class="mdi mdi-sort-variant"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav mr-lg-4 w-100">
+                <li class="nav-item nav-search d-none d-lg-block w-100">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="search">
+                                <i class="mdi mdi-magnify"></i>
+                            </span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="Search now" aria-label="search"
+                               aria-describedby="search">
+                    </div>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav navbar-nav-right">
+                <!-- Messages Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link count-indicator dropdown-toggle" id="messageDropdown" href="#"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="mdi mdi-email-outline"></i>
+                        {% if unread_messages.count > 0 %}
+                        <span class="count bg-success">{{ unread_messages.count }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list"
+                         aria-labelledby="messageDropdown">
+                        <h6 class="p-3 mb-0 bg-light">
+                            <i class="mdi mdi-email-multiple-outline me-2"></i>Messages
+                            {% if unread_messages.count > 0 %}
+                            <span class="badge bg-danger ms-2">{{ unread_messages.count }} new</span>
+                            {% endif %}
+                        </h6>
+                        <div class="dropdown-divider"></div>
+
+                        {% if recent_messages %}
+                        {% for message in recent_messages|slice:":5" %}
+                        <a class="dropdown-item d-flex align-items-center py-2 {% if message.unread %}bg-light{% endif %}"
+                           href="#"
+                           title="View message from {{ message.sender.get_full_name }}">
+                            <div class="item-thumbnail me-3 position-relative">
+                                <img src="{% if message.sender.profile_image %}{{ message.sender.profile_image.url }}{% else %}{% static 'dashboard/images/faces/face4.jpg' %}{% endif %}"
+                                     alt="{{ message.sender.get_full_name }}'s profile picture"
+                                     class="profile-pic rounded-circle"
+                                     width="40" height="40">
+                                {% if message.unread %}
+                                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                                <span class="visually-hidden">New message</span>
+                            </span>
+                                {% endif %}
+                            </div>
+                            <div class="item-content flex-grow">
+                                <h6 class="ellipsis font-weight-normal mb-0">
+                                    {{ message.sender.get_full_name|default:"User" }}
+                                    {% if message.sender.is_staff %}
+                                    <span class="badge bg-primary ms-2">Staff</span>
+                                    {% endif %}
+                                </h6>
+                                <p class="font-weight-light small-text text-muted mb-0">
+                                    <i class="mdi mdi-email-outline me-1"></i>
+                                    {{ message.subject|truncatechars:25 }}
+                                </p>
+                                <small class="text-muted">{{ message.sent_at|timesince }} ago</small>
+                            </div>
+                        </a>
+                        {% endfor %}
+                        {% else %}
+                        <div class="dropdown-item text-center py-3">
+                            <i class="mdi mdi-email-open-outline fs-4 text-muted"></i>
+                            <p class="small-text text-muted mt-2 mb-0">No new messages</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-center small py-2 text-primary" href="#">
+                            <i class="mdi mdi-chevron-double-right me-1"></i>View all messages
+                        </a>
+                    </div>
+                </li>
+
+                <!-- Notifications Dropdown -->
+                <li class="nav-item dropdown me-4">
+                    <a class="nav-link count-indicator dropdown-toggle d-flex align-items-center justify-content-center notification-dropdown"
+                       id="notificationDropdown" href="#" data-bs-toggle="dropdown">
+                        <i class="mdi mdi-bell mx-0"></i>
+                        {% if unread_notifications.count > 0 %}
+                        <span class="count bg-danger">{{ unread_notifications.count }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown"
+                         aria-labelledby="notificationDropdown">
+                        <p class="mb-0 font-weight-normal float-left dropdown-header">
+                            Notifications
+                            {% if unread_notifications.count > 0 %}
+                            <span class="badge bg-danger ms-2">{{ unread_notifications.count }} new</span>
+                            {% endif %}
+                        </p>
+                        <div class="dropdown-divider"></div>
+
+                        {% if notifications %}
+                        {% for notification in notifications|slice:":5" %}
+                        <a class="dropdown-item d-flex align-items-center py-2 {% if notification.unread %}bg-light{% endif %}"
+                           href="#">
+                            <div class="item-thumbnail me-3">
+                                <div class="item-icon bg-{{ notification.get_priority_class }}">
+                                    <i class="mdi mdi-{{ notification.get_icon }} mx-0"></i>
+                                </div>
+                            </div>
+                            <div class="item-content">
+                                <h6 class="font-weight-normal">{{ notification.title }}</h6>
+                                <p class="font-weight-light small-text mb-0 text-muted">
+                                    {{ notification.message|truncatechars:40 }}
+                                </p>
+                                <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                            </div>
+                        </a>
+                        {% endfor %}
+                        {% else %}
+                        <div class="dropdown-item text-center py-3">
+                            <i class="mdi mdi-bell-off-outline fs-4 text-muted"></i>
+                            <p class="small-text text-muted mt-2 mb-0">No new notifications</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-center small py-2 text-primary" href="#">
+                            <i class="mdi mdi-chevron-double-right me-1"></i>View all notifications
+                        </a>
+                    </div>
+                </li>
+
+                <!-- User Profile Dropdown -->
+                <li class="nav-item nav-profile dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
+                        <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'dashboard/images/faces/face5.jpg' %}{% endif %}"
+                             alt="{{ user.username }}'s profile picture"/>
+                        <span class="nav-profile-name">{{ user.get_full_name|default:user.username }}</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+                        <a class="dropdown-item" href="{% url 'registertable' %}">
+                            <i class="mdi mdi-account-circle text-primary"></i> Profile
+                        </a>
+                        <a class="dropdown-item" href="#">
+                            <i class="mdi mdi-cog text-primary"></i> Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'logout' %}">
+                            <i class="mdi mdi-logout text-primary"></i> Logout
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="container-fluid page-body-wrapper">
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'job_list' %}">
+                        <i class="mdi mdi-grid-large menu-icon"></i>
+                        <span class="menu-title">Job List</span>
+                    </a>
+                </li>
+
+
+                {% if user.is_authenticated and not user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'my_applications' %}">
+                        <i class="mdi mdi-file-document menu-icon"></i>
+                        <span class="menu-title">My Applications</span>
+                    </a>
+                </li>
+                {% endif %}
+
+
+                {% if user.is_authenticated and not user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'registertable' %}">
+                        <i class="mdi mdi-account-card-details menu-icon"></i>
+                        <span class="menu-title">My Profile Info</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if not request.user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'update_register' %}">
+                        <i class="mdi mdi-account-edit menu-icon"></i>
+                        <span class="menu-title"> Edit Profile</span>
+                    </a>
+
+                </li>
+                {% endif %}
+
+                {% if user.is_authenticated and not user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'change_password' %}">
+                        <i class="mdi mdi-file-document menu-icon"></i>
+                        <span class="menu-title">Change Password</span>
+                    </a>
+                </li>
+                {% endif %}
+
+
+                {% if user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'manage_jobs' %}">
+                        <i class="mdi mdi-pencil-box menu-icon"></i>
+                        <span class="menu-title">Manage Jobs</span>
+                    </a>
+                </li>
+                {% endif %}
+
+
+                {% if user.is_authenticated and user.is_staff %}
+
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'add_job' %}">
+                        <i class="mdi mdi-plus-circle menu-icon"></i>
+                        <span class="menu-title">Add Job</span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin_dashboard' %}">
+                        <i class="mdi mdi-shield-account menu-icon"></i>
+                        <span class="menu-title">Applications</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-panel">
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer mt-auto py-3 bg-light">
+                <div class="container d-sm-flex justify-content-center justify-content-sm-between">
+        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">
+            Copyright © {% now "Y" %} <strong>MySite</strong>. All rights reserved. Developed by <strong>Swapnil Karpe</strong>.
+        </span>
+                </div>
+            </footer>
+
+
+        </main>
+    </div>
+</div>
+
+
+<!-- JavaScript -->
+<script src="{% static 'dashboard/vendors/base/vendor.bundle.base.js' %}"></script>
+<script src="{% static 'dashboard/vendors/chart.js/Chart.min.js' %}"></script>
+<script src="{% static 'dashboard/vendors/datatables.net/jquery.dataTables.js' %}"></script>
+<script src="{% static 'dashboard/vendors/datatables.net-bs4/dataTables.bootstrap4.js' %}"></script>
+<script src="{% static 'dashboard/js/off-canvas.js' %}"></script>
+<script src="{% static 'dashboard/js/hoverable-collapse.js' %}"></script>
+<script src="{% static 'dashboard/js/template.js' %}"></script>
+<script src="{% static 'dashboard/js/dashboard.js' %}"></script>
+<script src="{% static 'dashboard/js/data-table.js' %}"></script>
+<script src="{% static 'dashboard/js/jquery.cookie.js' %}" type="text/javascript"></script>
+</body>
+</html>

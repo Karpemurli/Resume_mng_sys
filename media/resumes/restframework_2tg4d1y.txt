@@ -1,0 +1,18 @@
+Views.py Page
+
+All data display hoto
+
+# @api_view(): # kahich nahi dila tr get method deto.
+@api_view()
+def car_list(request):
+    car = CarDetails.objects.all()
+    serializer = CarSerializer(car, many=True)
+    return Response(serializer.data)
+
+ID Nusar data display hoto
+
+@api_view()
+def car_details(request, pk):
+    car = CarDetails.objects.get(pk=pk)
+    serializer = CarSerializer(car)
+    return Response(serializer.data)
